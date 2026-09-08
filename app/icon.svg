@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Registro de asistencia">
+  <rect width="32" height="32" rx="8" fill="#39C5BB"/>
+  <rect x="7" y="8" width="18" height="17" rx="3" fill="#fffefb"/>
+  <circle cx="12.5" cy="10.6" r="1.2" fill="#39C5BB"/>
+  <circle cx="19.5" cy="10.6" r="1.2" fill="#39C5BB"/>
+  <path
+    d="M12.4 18.6 15.2 21.4 20.4 14.8"
+    fill="none"
+    stroke="#39C5BB"
+    stroke-width="2.35"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
