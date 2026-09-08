@@ -12,15 +12,15 @@ type ProfileDialogProps = {
 };
 
 const FIELDS: { key: keyof Profile; label: string; placeholder: string }[] = [
-  { key: "fullName", label: "Nombre completo", placeholder: "Apellido, Nombre" },
-  { key: "role", label: "Puesto / Rol", placeholder: "Ej. Desarrollador Android" },
-  { key: "department", label: "Departamento / Área", placeholder: "Ej. Push Software" },
+  { key: "fullName", label: "Nombre completo", placeholder: "Ej. Apellido, Nombre" },
+  { key: "role", label: "Puesto / Rol", placeholder: "Ej. Analista" },
+  { key: "department", label: "Departamento / Área", placeholder: "Ej. Administración" },
   {
     key: "company",
     label: "Entidad / Empresa",
-    placeholder: "Ej. Secretaría de Ciencia y Tecnología",
+    placeholder: "Ej. Nombre de la entidad",
   },
-  { key: "supervisorTitle", label: "Cargo de quien firma", placeholder: "Jefe / superior" },
+  { key: "supervisorTitle", label: "Cargo de quien firma", placeholder: "Ej. Jefe de área" },
 ];
 
 export function ProfileDialog({
@@ -31,18 +31,24 @@ export function ProfileDialog({
 }: ProfileDialogProps) {
   const titleId = useId();
   const firstField = useRef<HTMLInputElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
     firstField.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
 
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
     };
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

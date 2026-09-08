@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   getWorkdays,
   isWeekend,
@@ -23,15 +30,29 @@ import { ProfileDialog } from "./ProfileDialog";
 import { RegisterDocument } from "./RegisterDocument";
 
 export function AttendanceApp() {
-  const today = useMemo(() => startOfToday(), []);
-  const [ready, setReady] = useState(false);
+  const [today, setToday] = useState(() => startOfToday());
+  const [booted, setBooted] = useState(false);
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [records, setRecords] = useState<Record<string, DayRecord>>({});
-  const [year, setYear] = useState(today.getFullYear());
-  const [monthIndex, setMonthIndex] = useState(today.getMonth());
+  const [year, setYear] = useState(() => startOfToday().getFullYear());
+  const [monthIndex, setMonthIndex] = useState(() => startOfToday().getMonth());
   const [profileOpen, setProfileOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
+
+  useLayoutEffect(() => {
+    const now = startOfToday();
+    const stored = loadState();
+    setToday(now);
+    setYear(now.getFullYear());
+    setMonthIndex(now.getMonth());
+    setProfile(stored.profile);
+    setRecords(stored.records);
+    setBooted(true);
+    if (!stored.profile.fullName.trim()) {
+      setProfileOpen(true);
+    }
+  }, []);
 
   const workdays = useMemo(
     () => getWorkdays(year, monthIndex, today),
@@ -39,17 +60,7 @@ export function AttendanceApp() {
   );
 
   useEffect(() => {
-    const state = loadState();
-    setProfile(state.profile);
-    setRecords(state.records);
-    setReady(true);
-    if (!state.profile.fullName.trim()) {
-      setProfileOpen(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
+    if (!booted) return;
 
     setRecords((prev) => {
       let changed = false;
@@ -66,20 +77,20 @@ export function AttendanceApp() {
 
       return changed ? next : prev;
     });
-  }, [ready, workdays, year]);
+  }, [booted, workdays, year]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!booted) return;
     if (!saveState({ profile, records })) {
       setToast("No se pudo guardar. El almacenamiento del navegador está lleno.");
     }
-  }, [ready, profile, records]);
+  }, [booted, profile, records]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!booted) return;
     const todayRow = document.querySelector('tr[data-today="true"]');
     todayRow?.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [ready, year, monthIndex]);
+  }, [booted, year, monthIndex]);
 
   useEffect(() => {
     if (!toast) return;
@@ -251,14 +262,6 @@ export function AttendanceApp() {
       }
     };
     reader.readAsText(file);
-  }
-
-  if (!ready) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-[#e7e3db] text-[#4a4540]">
-        <p className="text-sm">Cargando registro…</p>
-      </div>
-    );
   }
 
   return (

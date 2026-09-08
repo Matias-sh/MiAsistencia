@@ -1,13 +1,13 @@
 import type { NextConfig } from "next";
 
 function githubPagesBasePath() {
+  if (process.env.GITHUB_PAGES !== "true") {
+    return "";
+  }
+
   const fromEnv = process.env.NEXT_PUBLIC_BASE_PATH?.trim();
   if (fromEnv) {
     return fromEnv.startsWith("/") ? fromEnv.replace(/\/$/, "") : `/${fromEnv}`;
-  }
-
-  if (process.env.GITHUB_PAGES !== "true") {
-    return "";
   }
 
   const repo = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  ...(basePath ? { basePath, assetPrefix: basePath } : {}),
+  ...(basePath ? { basePath } : {}),
 };
 
 export default nextConfig;
